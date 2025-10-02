@@ -4,7 +4,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Copy, CheckCircle, Info, Loader2, ChevronDown, Mic, Volume2 } from 'lucide-react'
 import { useSpeech } from '../hooks/useSpeech'
-import { getSupabaseClient } from '@/src/lib/supabaseClient'
 
 type TranslationMode = 'TES' | 'TEL'
 
@@ -73,55 +72,6 @@ export default function TranslatorPage() {
     }
   }
 
-  // Save translation to database
-  const saveTranslatorSession = async (mode: TranslationMode, input: string, output: any) => {
-    try {
-      const client = getSupabaseClient()
-
-      // Always save to localStorage as fallback
-      const localSessions = JSON.parse(localStorage.getItem('translator_sessions') || '[]')
-      const newSession = {
-        mode,
-        input_text: input,
-        output_json: output,
-        created_at: new Date().toISOString()
-      }
-      localSessions.push(newSession)
-      localStorage.setItem('translator_sessions', JSON.stringify(localSessions))
-
-      if (!client) {
-        console.log('Saved to local storage (Supabase not configured)')
-        return
-      }
-
-      // Get or create user ID
-      let userId = localStorage.getItem('ter-user-id')
-      if (!userId) {
-        userId = crypto.randomUUID()
-        localStorage.setItem('ter-user-id', userId)
-      }
-
-      // Save to Supabase
-      const { error } = await client
-        .from('translator_sessions')
-        .insert({
-          user_id: userId,
-          mode,
-          input_text: input,
-          output_json: output,
-          created_at: new Date().toISOString()
-        })
-
-      if (error) {
-        console.error('Supabase save error:', error)
-      } else {
-        console.log('Translation saved to database')
-      }
-    } catch (error) {
-      console.error('Error saving translation:', error)
-    }
-  }
-
   const handleTranslate = async () => {
     if (!input.trim()) return
 
@@ -135,9 +85,6 @@ export default function TranslatorPage() {
       
       const data = await response.json()
       setTranslation(data)
-
-      // Save to database
-      await saveTranslatorSession(mode, input, data)
     } catch (error) {
       console.error('Translation error:', error)
       // Set a mock translation for demo purposes

@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Mic, Square, Play, Loader2, ChevronRight, Clock } from 'lucide-react'
-import { getSupabaseClient } from '@/src/lib/supabaseClient'
 
 interface TELSummary {
   outer: string
@@ -85,7 +84,7 @@ export default function MediatorPage() {
       setAnalysis(null)
     } catch (error) {
       console.error('Error accessing microphone:', error)
-      alert('Couldn\'t record audio. Check microphone permissions in Settings.')
+      alert('Please allow microphone access to use the Mediator')
     }
   }
 
@@ -96,122 +95,36 @@ export default function MediatorPage() {
     }
   }
 
-  const saveMediatorSession = async (sessionData: MediatorAnalysis) => {
-    try {
-      const client = getSupabaseClient()
-
-      // Always save to localStorage as fallback
-      const localSessions = JSON.parse(localStorage.getItem('mediator_sessions') || '[]')
-      const newSession = {
-        ...sessionData,
-        speaker,
-        duration: recordingTime,
-        created_at: new Date().toISOString()
-      }
-      localSessions.push(newSession)
-      localStorage.setItem('mediator_sessions', JSON.stringify(localSessions))
-
-      if (!client) {
-        console.log('Saved to local storage (Supabase not configured)')
-        return
-      }
-
-      // Get or create user ID
-      let userId = localStorage.getItem('ter-user-id')
-      if (!userId) {
-        userId = crypto.randomUUID()
-        localStorage.setItem('ter-user-id', userId)
-      }
-
-      // Save to Supabase
-      const { error } = await client
-        .from('mediator_sessions')
-        .insert({
-          user_id: userId,
-          transcript: sessionData.transcript,
-          tel_analysis: sessionData.telSummary,
-          depth_questions: sessionData.depthQuestions,
-          suggested_game: sessionData.suggestedGame,
-          speaker,
-          duration_seconds: recordingTime,
-          created_at: new Date().toISOString()
-        })
-
-      if (error) {
-        console.error('Supabase save error:', error)
-      } else {
-        console.log('Session saved to database')
-      }
-    } catch (error) {
-      console.error('Error saving session:', error)
-    }
-  }
-
   const handleAnalyze = async () => {
     if (!audioBlob) return
 
     setIsProcessing(true)
     try {
-      // Step 1: Transcribe the audio
-      const transcribeFormData = new FormData()
-      transcribeFormData.append('audio', audioBlob, 'recording.webm')
-      transcribeFormData.append('mode', 'mediator')
-
-      const transcribeResponse = await fetch('/api/transcribe', {
-        method: 'POST',
-        body: transcribeFormData
-      })
-
-      const transcribeData = await transcribeResponse.json()
-      const transcript = transcribeData.text || "Unable to transcribe audio"
-
-      // Step 2: Analyze the conversation
-      const analyzeResponse = await fetch('/api/analyze-conversation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transcript,
-          speaker,
-          duration: recordingTime
-        })
-      })
-
-      const analysisData = await analyzeResponse.json()
-
-      // Combine transcript with analysis
-      const newAnalysis = {
-        transcript,
-        telSummary: analysisData.telSummary,
-        depthQuestions: analysisData.depthQuestions,
-        suggestedGame: analysisData.suggestedGame
-      }
-      setAnalysis(newAnalysis)
-
-      // Save to database
-      await saveMediatorSession(newAnalysis)
-    } catch (error) {
-      console.error('Analysis error:', error)
-      // Fallback to mock data if API fails
-      const fallbackAnalysis = {
+      // In a real app, this would upload the audio and get analysis
+      // For demo, we'll simulate with a timeout
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      
+      // Mock analysis result
+      setAnalysis({
         transcript: "When you walked out, my chest tightened and I told myself I don't matter. I keep replaying last week and thought, 'Here we go again.'",
         telSummary: {
-          outer: "Partner shared concerns about communication patterns and feeling disconnected",
-          undercurrents: "Fear of not mattering, worry about growing apart, loneliness even when together. The Under: fear of abandonment or inadequacy.",
-          whatMatters: "Being truly seen and heard, emotional safety, genuine connection, reassurance of being chosen"
+          outer: "I felt dismissed when plans changed.",
+          undercurrents: "fear of not mattering / being deprioritized.",
+          whatMatters: "needs reliability and reassurance of being chosen."
         },
         depthQuestions: [
-          "Would you share what it feels like in your body when you sense I'm not fully present?",
-          "What helps you know that you matter to me, even when we're struggling?",
-          "How can I show up in a way that would help you feel safe to share what's tender?"
+          "Would you share what felt most tender in that moment?",
+          "Is there a way I could offer reassurance that would really land?",
+          "What meaning did you give me leaving the room just then?"
         ],
         suggestedGame: {
           name: "Internal Weather Report",
-          duration: "2-3 min",
-          description: "Share your emotional state using weather metaphors - no fixing, just witnessing"
+          duration: "2 min each",
+          description: "Share your emotional state using weather metaphors"
         }
-      }
-      setAnalysis(fallbackAnalysis)
-      await saveMediatorSession(fallbackAnalysis)
+      })
+    } catch (error) {
+      console.error('Analysis error:', error)
     } finally {
       setIsProcessing(false)
     }
@@ -233,13 +146,13 @@ export default function MediatorPage() {
               <ArrowLeft size={20} className="mr-2" />
               Back
             </Link>
-            <h1 className="text-xl font-semibold text-white">Mediator</h1>
+            <h1 className="text-xl font-semibold text-white">Mediator (Beta)</h1>
             <div className="w-20"></div>
           </div>
         </div>
         <div className="container mx-auto px-4 pb-4">
           <p className="text-white/90 text-sm">
-            {analysis ? `Segment analyzed • ${recordingTime}s` : 'Hold to record a turn (15-60s)'}
+            {analysis ? `Segment analyzed • ${recordingTime}s` : 'Push to transcribe a turn (15-60s)'}
           </p>
         </div>
       </header>
@@ -249,8 +162,8 @@ export default function MediatorPage() {
         <div className="container mx-auto px-4 mt-4">
           <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-lg p-4 text-sm text-gray-600">
-              Both of you consent to transcribe this segment.
-              <button
+              Both of you consent to transcribe this segment. 
+              <button 
                 onClick={() => setShowConsent(false)}
                 className="ml-2 text-gray-500 underline"
               >
@@ -275,8 +188,8 @@ export default function MediatorPage() {
                   onTouchEnd={stopRecording}
                   disabled={isProcessing}
                   className={`relative w-32 h-32 rounded-full flex items-center justify-center transition-all ${
-                    isRecording
-                      ? 'bg-red-500 scale-110 recording-pulse'
+                    isRecording 
+                      ? 'bg-red-500 scale-110 recording-pulse' 
                       : 'bg-white border-4 border-ter-olive hover:scale-105'
                   }`}
                 >
@@ -302,8 +215,8 @@ export default function MediatorPage() {
                   <button
                     onClick={() => setSpeaker('you')}
                     className={`px-6 py-2 rounded-lg transition-colors ${
-                      speaker === 'you'
-                        ? 'bg-ter-olive text-white'
+                      speaker === 'you' 
+                        ? 'bg-ter-olive text-white' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -312,8 +225,8 @@ export default function MediatorPage() {
                   <button
                     onClick={() => setSpeaker('partner')}
                     className={`px-6 py-2 rounded-lg transition-colors ${
-                      speaker === 'partner'
-                        ? 'bg-ter-olive text-white'
+                      speaker === 'partner' 
+                        ? 'bg-ter-olive text-white' 
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -445,7 +358,7 @@ export default function MediatorPage() {
                   Translate my reply
                 </button>
               </Link>
-              <button
+              <button 
                 onClick={() => {
                   setAnalysis(null)
                   setAudioBlob(null)
@@ -461,7 +374,7 @@ export default function MediatorPage() {
             {/* Tip */}
             <div className="p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
               <p className="font-medium mb-1">💡 Tip:</p>
-              <p>Pause after 30-45s. We'll show a TEL summary + depth questions.</p>
+              <p>Pause after 30-45s. We'll show a TEL summary + 2 depth questions.</p>
               <p className="mt-2 text-gray-500">
                 Repair tools (Translation & Mediator) are always available.
               </p>

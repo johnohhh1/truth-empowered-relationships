@@ -3,15 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CheckCircle2, Clock, Play } from 'lucide-react'
 import BaggageClaimGame, { GameComponentProps, GameLevel } from './BaggageClaimGame'
-import InternalWeatherReportGame from './InternalWeatherReportGame'
-import PauseGame from './PauseGame'
-import PillarTalkGame from './PillarTalkGame'
-import AndWhatElseGame from './AndWhatElseGame'
-import ClosenessCounterGame from './ClosenessCounterGame'
-import SwitchGame from './SwitchGame'
-import SevenNightsGame from './SevenNightsGame'
-import BombSquadGame from './BombSquadGame'
-import { getSupabaseClient } from '@/src/lib/supabaseClient'
 
 interface GameDefinition {
   id: string
@@ -20,7 +11,7 @@ interface GameDefinition {
   duration: string
   description: string
   instructions: string
-  component: (props: GameComponentProps) => JSX.Element | null
+  component: (props: GameComponentProps) => JSX.Element
 }
 
 interface StoredProgress {
@@ -38,40 +29,6 @@ export interface GameSelectorProps {
 
 const gamesCatalog: GameDefinition[] = [
   {
-    id: 'internal-weather-report',
-    title: 'Internal Weather Report',
-    level: 'beginner',
-    duration: '2-3 min',
-    description: 'Share your emotional weather with each other using simple metaphors - no fixing, just witnessing.',
-    instructions: `1. Each person picks a weather that matches their emotional state
-2. Share without explaining or fixing
-3. Witness each other without trying to change the weather`,
-    component: InternalWeatherReportGame
-  },
-  {
-    id: 'pause',
-    title: 'Pause',
-    level: 'beginner',
-    duration: '1-2 min',
-    description: 'A quick de-escalation tool when a conversation is heating up - call a 1-minute timeout.',
-    instructions: `1. Either person can call "Pause" - no questions asked
-2. Take 1 minute to breathe and regulate
-3. Come back and decide: continue or table it?`,
-    component: PauseGame
-  },
-  {
-    id: 'pillar-talk',
-    title: 'Pillar Talk',
-    level: 'beginner',
-    duration: '5-10 min',
-    description: 'Check in on the Four Pillars: Freeness, Wholesomeness, Non-Meanness, and Fairness.',
-    instructions: `1. Each person rates how they feel about each pillar (1-10)
-2. Share ratings with each other
-3. Discuss what would help the lowest pillar improve
-4. Pick ONE concrete action for this week`,
-    component: PillarTalkGame
-  },
-  {
     id: 'baggage-claim',
     title: 'Baggage Claim',
     level: 'beginner',
@@ -81,66 +38,6 @@ const gamesCatalog: GameDefinition[] = [
 2. Tap the reflection that belongs with that suitcase.
 3. Check your matches and notice what clears when the baggage is claimed.`,
     component: BaggageClaimGame
-  },
-  {
-    id: 'and-what-else',
-    title: 'And What Else?',
-    level: 'intermediate',
-    duration: '10-20 min',
-    description: 'Release layers of resentment - one partner shares, the other only says "And what else?"',
-    instructions: `1. Partner 1 shares a resentment
-2. Partner 2 only says "And what else?" - nothing else
-3. Keep going until Partner 1 says "That's all"
-4. Switch roles if desired`,
-    component: AndWhatElseGame
-  },
-  {
-    id: 'closeness-counter',
-    title: 'Closeness Counter',
-    level: 'intermediate',
-    duration: '30-60 min',
-    description: 'Match your physical distance to your emotional distance - a powerful embodiment practice.',
-    instructions: `1. Rate how emotionally close you feel (1-10)
-2. Maintain that physical distance for 30-60 minutes
-3. Notice what shifts when distance becomes visible
-4. Check in after the timer ends`,
-    component: ClosenessCounterGame
-  },
-  {
-    id: 'switch',
-    title: 'Switch',
-    level: 'advanced',
-    duration: '10-15 min',
-    description: 'Argue your partner\'s side better than they could - perspective-taking at its deepest.',
-    instructions: `1. Pick a conflict you're having
-2. Each person argues their own side (2-3 min)
-3. Switch: argue your partner's side as convincingly as possible
-4. Reflect on what you learned`,
-    component: SwitchGame
-  },
-  {
-    id: 'seven-nights',
-    title: 'Seven Nights of Truth',
-    level: 'advanced',
-    duration: '7 nights × 5 min',
-    description: 'Progressive vulnerability over seven nights - each night goes deeper than the last.',
-    instructions: `1. Each night, answer one vulnerability prompt together
-2. Take turns - one person shares, the other witnesses
-3. No fixing, defending, or explaining - just listening
-4. The prompts get progressively deeper each night`,
-    component: SevenNightsGame
-  },
-  {
-    id: 'bomb-squad',
-    title: 'Bomb Squad',
-    level: 'advanced',
-    duration: '45 min',
-    description: 'Defuse recurring fights by going beneath the surface - structured repair work.',
-    instructions: `1. Pick ONE recurring fight
-2. Follow 8 structured steps (45 min total)
-3. Name the fight, find the Unders, discover what it's really about
-4. Create a defusal agreement for next time`,
-    component: BombSquadGame
   }
 ]
 
@@ -179,44 +76,19 @@ export default function GameSelector({ level, requestedGameId, onGameLaunch, onG
     setUserId(newId)
   }, [])
 
-  const loadProgress = useCallback(async (resolvedUserId: string) => {
+  const loadProgress = useCallback(async () => {
     setLoadingProgress(true)
     try {
-      const client = getSupabaseClient()
-      if (!client) {
-        if (typeof window !== 'undefined') {
-          const local = window.localStorage.getItem('ter-game-progress')
-          if (local) {
-            try {
-              const parsed = JSON.parse(local) as Record<string, StoredProgress>
-              setProgress(parsed)
-            } catch (error) {
-              console.warn('Unable to parse cached game progress', error)
-            }
+      if (typeof window !== 'undefined') {
+        const local = window.localStorage.getItem('ter-game-progress')
+        if (local) {
+          try {
+            const parsed = JSON.parse(local) as Record<string, StoredProgress>
+            setProgress(parsed)
+          } catch (error) {
+            console.warn('Unable to parse cached game progress', error)
           }
         }
-        return
-      }
-
-      const { data, error } = await client
-        .from('game_progress')
-        .select('game_id, completed, completed_at')
-        .eq('user_id', resolvedUserId)
-
-      if (error) {
-        console.warn('Unable to load Supabase game progress', error)
-        return
-      }
-
-      if (data) {
-        const mapped: Record<string, StoredProgress> = {}
-        ;(data as Array<{ game_id: string; completed: boolean | null; completed_at: string | null }>).forEach(entry => {
-          mapped[entry.game_id] = {
-            completed: Boolean(entry.completed ?? true),
-            completedAt: entry.completed_at ?? undefined
-          }
-        })
-        setProgress(mapped)
       }
     } finally {
       setLoadingProgress(false)
@@ -224,10 +96,8 @@ export default function GameSelector({ level, requestedGameId, onGameLaunch, onG
   }, [])
 
   useEffect(() => {
-    if (userId) {
-      loadProgress(userId)
-    }
-  }, [userId, loadProgress])
+    loadProgress()
+  }, [loadProgress])
 
   useEffect(() => {
     if (!requestedGameId) {
@@ -255,34 +125,7 @@ export default function GameSelector({ level, requestedGameId, onGameLaunch, onG
       }
       return updated
     })
-
-    if (!userId) {
-      return
-    }
-
-    const client = getSupabaseClient()
-    if (!client) {
-      return
-    }
-
-    const { error } = await client
-      .from('game_progress')
-      .upsert(
-        {
-          user_id: userId,
-          game_id: gameId,
-          completed: true,
-          completed_at: completedAt
-        },
-        {
-          onConflict: 'user_id,game_id'
-        }
-      )
-
-    if (error) {
-      console.warn('Unable to save Supabase game progress', error)
-    }
-  }, [userId])
+  }, [])
 
   const handleLaunchGame = useCallback((gameId: string) => {
     setActiveGameId(gameId)
