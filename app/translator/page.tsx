@@ -40,18 +40,23 @@ export default function TranslatorPage() {
   const {
     isRecording,
     isSpeaking,
+    transcribing,
     startRecording,
     stopRecording,
+    transcribeAudio,
     speak,
     stopSpeaking
   } = useSpeech()
 
-  // Voice input handler
+  // Voice input handler - FIXED to properly transcribe audio
   const handleVoiceInput = async () => {
     if (isRecording) {
-      const text = await stopRecording()
-      if (text) {
-        setInput(text)
+      const audioBlob = await stopRecording()
+      if (audioBlob && audioBlob.size > 0) {
+        const text = await transcribeAudio(audioBlob, mode)
+        if (text) {
+          setInput(text)
+        }
       }
     } else {
       startRecording()
@@ -184,24 +189,42 @@ export default function TranslatorPage() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={mode === 'TES' 
-                  ? "Type here... (or paste a message to translate)"
-                  : "Type or paste what your partner said..."
+                  ? "Type here... (or click mic to speak)"
+                  : "Type or click mic to record..."
                 }
                 className="textarea pr-12"
                 rows={4}
+                disabled={isRecording || transcribing}
               />
               <button
                 onClick={handleVoiceInput}
+                disabled={transcribing}
                 className={`absolute right-3 top-3 p-2 rounded-full transition-colors ${
                   isRecording
                     ? 'bg-red-500 text-white animate-pulse'
+                    : transcribing
+                    ? 'bg-blue-500 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
-                title={isRecording ? 'Stop recording' : 'Voice input'}
+                title={isRecording ? 'Stop recording' : transcribing ? 'Transcribing...' : 'Voice input'}
               >
-                <Mic size={20} />
+                {transcribing ? <Loader2 size={20} className="animate-spin" /> : <Mic size={20} />}
               </button>
             </div>
+            
+            {isRecording && (
+              <div className="mt-2 text-sm text-red-600 flex items-center">
+                <span className="animate-pulse mr-2">●</span>
+                Recording... Click mic again to stop
+              </div>
+            )}
+            
+            {transcribing && (
+              <div className="mt-2 text-sm text-blue-600 flex items-center">
+                <Loader2 size={14} className="animate-spin mr-2" />
+                Transcribing audio...
+              </div>
+            )}
             
             {mode === 'TES' && (
               <div className="flex gap-3 mt-3 text-sm">
@@ -224,7 +247,7 @@ export default function TranslatorPage() {
 
           <button
             onClick={handleTranslate}
-            disabled={loading || !input.trim()}
+            disabled={loading || !input.trim() || isRecording || transcribing}
             className="w-full btn-primary mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {loading ? (
