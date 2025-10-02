@@ -138,20 +138,20 @@ export default function VoiceChat({ active, onStartGame }: VoiceChatProps) {
   }, [active, isProcessing, isRecording, transcribing])
 
   return (
-    <div className="rounded-3xl bg-white p-6 shadow-lg">
+    <div className="rounded-3xl bg-ter-olive p-6 shadow-lg">
       <header className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">Aria Voice Companion</h2>
-          <p className="text-sm text-gray-600">Ask for reflections, depth prompts, or say “Play Baggage Claim” to launch a game.</p>
+          <h2 className="text-2xl font-semibold text-white">Aria Voice Companion</h2>
+          <p className="text-sm text-white/90">Ask for reflections, depth prompts, or say "Play Baggage Claim" to launch a game.</p>
         </div>
         <div className={`relative flex h-12 w-12 items-center justify-center rounded-full ${
-          isRecording ? 'bg-ter-pink text-white shadow-lg' : active ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500'
+          isRecording ? 'bg-ter-pink text-white shadow-lg' : active ? 'bg-white text-ter-olive' : 'bg-white/50 text-ter-olive/60'
         }`}>
           <button
             type="button"
             onClick={handleToggleRecording}
             disabled={!active}
-            className="flex h-full w-full items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-ter-pink/50"
+            className="flex h-full w-full items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-white/50"
             aria-label={isRecording ? 'Stop recording' : 'Start recording'}
           >
             {isRecording ? <PauseCircle size={24} /> : <Mic size={24} />}
@@ -165,9 +165,9 @@ export default function VoiceChat({ active, onStartGame }: VoiceChatProps) {
         </div>
       </header>
 
-      <div className="mb-4 h-40 overflow-y-auto rounded-2xl border border-gray-200 bg-gray-50 p-4 space-y-3">
+      <div className="mb-4 h-40 overflow-y-auto rounded-2xl border border-white/20 bg-white/10 p-4 space-y-3 backdrop-blur-sm">
         {messages.length === 0 ? (
-          <p className="text-sm italic text-gray-500">{placeholderMessage}</p>
+          <p className="text-sm italic text-white/70">{placeholderMessage}</p>
         ) : (
           messages.map(message => (
             <div
@@ -177,8 +177,8 @@ export default function VoiceChat({ active, onStartGame }: VoiceChatProps) {
               <div
                 className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
                   message.role === 'user'
-                    ? 'bg-ter-blue text-white'
-                    : 'bg-white text-gray-800 shadow'
+                    ? 'bg-[#F7F4EF] text-gray-900'
+                    : 'bg-white text-gray-800 shadow border-2 border-ter-olive/20'
                 }`}
               >
                 {message.content}
@@ -189,20 +189,20 @@ export default function VoiceChat({ active, onStartGame }: VoiceChatProps) {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-rose-100 bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</div>
+        <div className="mb-4 rounded-lg border border-rose-200 bg-white/90 px-3 py-2 text-sm text-rose-700">{error}</div>
       )}
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-white/90">
           <Volume2 size={16} />
           {isSpeaking ? 'Speaking response…' : 'Responses will play aloud.'}
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-white/90">
           {isRecording && (
             <div className="flex items-center gap-1">
-              <span className="relative inline-flex h-2 w-8 overflow-hidden rounded-full bg-ter-pink/20">
+              <span className="relative inline-flex h-2 w-8 overflow-hidden rounded-full bg-white/30">
                 <span
-                  className="absolute inset-y-0 left-0 bg-ter-pink transition-all duration-150"
+                  className="absolute inset-y-0 left-0 bg-white transition-all duration-150"
                   style={{ width: `${Math.max(10, waveformLevel * 100)}%` }}
                 />
               </span>
@@ -210,7 +210,7 @@ export default function VoiceChat({ active, onStartGame }: VoiceChatProps) {
             </div>
           )}
           {(isProcessing || transcribing) && (
-            <span className="inline-flex items-center gap-2 text-ter-pink">
+            <span className="inline-flex items-center gap-2 text-white">
               <Loader2 size={16} className="animate-spin" />
               Working
             </span>

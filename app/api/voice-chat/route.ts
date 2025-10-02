@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || ''
-})
+import { chatWithAria } from '@/src/lib/terAssistant'
 
 interface ChatMessage {
   role: 'user' | 'assistant'
@@ -25,6 +21,15 @@ function detectIntentFromText(text?: string | null): VoiceIntent {
   if (normalized.includes('baggage')) {
     return { intent: 'start_game', gameId: 'baggage-claim' }
   }
+  if (normalized.includes('weather report') || normalized.includes('iwr')) {
+    return { intent: 'start_game', gameId: 'internal-weather-report' }
+  }
+  if (normalized.includes('pause')) {
+    return { intent: 'start_game', gameId: 'pause' }
+  }
+  if (normalized.includes('pillar talk')) {
+    return { intent: 'start_game', gameId: 'pillar-talk' }
+  }
 
   return { intent: null, gameId: null }
 }
@@ -33,19 +38,15 @@ function getMockResponse(userText?: string | null) {
   const intent = detectIntentFromText(userText)
   if (intent.intent === 'start_game') {
     return {
-      reply: 'Opening the Baggage Claim practice so you can sort stories, impacts, and needs together.',
+      reply: `Opening the ${intent.gameId?.replace('-', ' ')} practice so you can work through it together.`,
       ...intent
     }
   }
 
   return {
-    reply: 'I hear you. Would you like a reflection, a grounding prompt, or to start a practice like Baggage Claim?',
+    reply: 'I hear you. Would you like a reflection, a grounding prompt, or to start a practice like Internal Weather Report?',
     ...intent
   }
-}
-
-function buildSystemPrompt() {
-  return `You are Aria, a compassionate Truth Empowered Relationships assistant. You listen deeply, reflect concisely, and suggest embodied practices when useful. If the user asks to \"play\" or \"start\" a specific game, acknowledge it and end with a gentle invitation to begin. Keep responses under 120 words.`
 }
 
 export async function POST(request: NextRequest) {
@@ -65,17 +66,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(getMockResponse(lastUserMessage))
     }
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: buildSystemPrompt() },
-        ...messages
-      ],
-      temperature: 0.6
-    })
-
-    const reply = completion.choices[0]?.message?.content?.trim() ||
-      'I am here with you. Would you like to try a practice together?'
+    // Use the assistant with vectorized TER book knowledge
+    const reply = await chatWithAria(messages)
 
     return NextResponse.json({
       reply,
