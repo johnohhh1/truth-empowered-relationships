@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Copy, CheckCircle, Info, Loader2, ChevronDown } from 'lucide-react'
+import { ArrowLeft, Copy, CheckCircle, Info, Loader2, ChevronDown, Mic, Volume2 } from 'lucide-react'
+import { useSpeech } from '../hooks/useSpeech'
 
 type TranslationMode = 'TES' | 'TEL'
 
@@ -34,6 +35,37 @@ export default function TranslatorPage() {
   const [loading, setLoading] = useState(false)
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [showChecks, setShowChecks] = useState(false)
+
+  // Speech features
+  const {
+    isRecording,
+    isSpeaking,
+    startRecording,
+    stopRecording,
+    speak,
+    stopSpeaking
+  } = useSpeech()
+
+  // Voice input handler
+  const handleVoiceInput = async () => {
+    if (isRecording) {
+      const text = await stopRecording()
+      if (text) {
+        setInput(text)
+      }
+    } else {
+      startRecording()
+    }
+  }
+
+  // Speak translation
+  const speakText = (text: string) => {
+    if (isSpeaking) {
+      stopSpeaking()
+    } else {
+      speak(text)
+    }
+  }
 
   const handleTranslate = async () => {
     if (!input.trim()) return
@@ -147,16 +179,29 @@ export default function TranslatorPage() {
             <label className="block text-gray-700 font-medium mb-3">
               {mode === 'TES' ? 'What do you want to say?' : 'What did your partner say?'}
             </label>
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={mode === 'TES' 
-                ? "Type here... (or paste a message to translate)"
-                : "Type or paste what your partner said..."
-              }
-              className="textarea"
-              rows={4}
-            />
+            <div className="relative">
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={mode === 'TES' 
+                  ? "Type here... (or paste a message to translate)"
+                  : "Type or paste what your partner said..."
+                }
+                className="textarea pr-12"
+                rows={4}
+              />
+              <button
+                onClick={handleVoiceInput}
+                className={`absolute right-3 top-3 p-2 rounded-full transition-colors ${
+                  isRecording
+                    ? 'bg-red-500 text-white animate-pulse'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+                title={isRecording ? 'Stop recording' : 'Voice input'}
+              >
+                <Mic size={20} />
+              </button>
+            </div>
             
             {mode === 'TES' && (
               <div className="flex gap-3 mt-3 text-sm">
@@ -207,27 +252,72 @@ export default function TranslatorPage() {
                 // TES Results
                 <div className="space-y-4">
                   <div className="border-l-4 border-ter-blue pl-4">
-                    <div className="text-sm text-gray-600 mb-1">Noticing (Inner)</div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-sm text-gray-600">Noticing (Inner)</div>
+                      <button
+                        onClick={() => speakText(translation.noticing)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        title="Read aloud"
+                      >
+                        <Volume2 size={16} className={isSpeaking ? 'text-ter-blue animate-pulse' : 'text-gray-500'} />
+                      </button>
+                    </div>
                     <div className="text-gray-900">{translation.noticing}</div>
                   </div>
 
                   <div className="border-l-4 border-ter-gold pl-4">
-                    <div className="text-sm text-gray-600 mb-1">Words (Outer)</div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-sm text-gray-600">Words (Outer)</div>
+                      <button
+                        onClick={() => speakText(translation.outer)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        title="Read aloud"
+                      >
+                        <Volume2 size={16} className={isSpeaking ? 'text-ter-gold animate-pulse' : 'text-gray-500'} />
+                      </button>
+                    </div>
                     <div className="text-gray-900">{translation.outer}</div>
                   </div>
 
                   <div className="border-l-4 border-ter-coral pl-4">
-                    <div className="text-sm text-gray-600 mb-1">Under (What I Fear)</div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-sm text-gray-600">Under (What I Fear)</div>
+                      <button
+                        onClick={() => speakText(translation.under)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        title="Read aloud"
+                      >
+                        <Volume2 size={16} className={isSpeaking ? 'text-ter-coral animate-pulse' : 'text-gray-500'} />
+                      </button>
+                    </div>
                     <div className="text-gray-900">{translation.under}</div>
                   </div>
 
                   <div className="border-l-4 border-ter-olive pl-4">
-                    <div className="text-sm text-gray-600 mb-1">Why (Need/Value)</div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-sm text-gray-600">Why (Need/Value)</div>
+                      <button
+                        onClick={() => speakText(translation.why)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        title="Read aloud"
+                      >
+                        <Volume2 size={16} className={isSpeaking ? 'text-ter-olive animate-pulse' : 'text-gray-500'} />
+                      </button>
+                    </div>
                     <div className="text-gray-900">{translation.why}</div>
                   </div>
 
                   <div className="border-l-4 border-ter-lavender pl-4">
-                    <div className="text-sm text-gray-600 mb-1">Ask (Clear & Kind)</div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="text-sm text-gray-600">Ask (Clear & Kind)</div>
+                      <button
+                        onClick={() => speakText(translation.ask)}
+                        className="p-1 hover:bg-gray-100 rounded"
+                        title="Read aloud"
+                      >
+                        <Volume2 size={16} className={isSpeaking ? 'text-ter-lavender animate-pulse' : 'text-gray-500'} />
+                      </button>
+                    </div>
                     <div className="text-gray-900">{translation.ask}</div>
                   </div>
 
