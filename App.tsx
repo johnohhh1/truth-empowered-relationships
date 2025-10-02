@@ -6,6 +6,7 @@ import { BookOpen, Heart, MessageSquare, Mic, ToggleLeft, ToggleRight } from 'lu
 import GameSelector from '@/src/games/GameSelector'
 import { GameLevel } from '@/src/games/BaggageClaimGame'
 import VoiceChat from '@/src/voice/VoiceChat'
+import Footer from '@/src/components/Footer'
 
 const levelOptions: Array<{ value: GameLevel; label: string; description: string }> = [
   { value: 'beginner', label: 'Beginner', description: 'Gentle introductions that build shared language.' },
@@ -186,6 +187,8 @@ export default function App() {
             <li>Run <code className="bg-gray-100 px-1 rounded">npm install && npm run dev</code></li>
           </ol>
         </div>
+
+        <Footer />
       </div>
     </div>
   )

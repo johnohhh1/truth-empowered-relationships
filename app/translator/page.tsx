@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Copy, CheckCircle, Info, Loader2, ChevronDown, Mic, Volume2 } from 'lucide-react'
 import { useSpeech } from '../hooks/useSpeech'
+import Footer from '@/src/components/Footer'
 
 type TranslationMode = 'TES' | 'TEL'
 
@@ -460,6 +461,8 @@ export default function TranslatorPage() {
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   )
 }

@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Mic, Square, Play, Loader2, ChevronRight, Clock } from 'lucide-react'
+import Footer from '@/src/components/Footer'
 
 interface TELSummary {
   outer: string
@@ -385,6 +386,8 @@ export default function MediatorPage() {
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   )
 }
