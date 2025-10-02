@@ -12,6 +12,8 @@ A functional web application for the Truth Empowered Relationships framework, fe
    - Truth Empowered Speaking: Transform reactive language into conscious communication
    - Truth Empowered Listening: Understand what your partner is really saying
    - AI-powered translations with OpenAI integration
+   - 🎤 **Voice Input**: Speak instead of type with speech-to-text
+   - 🔊 **Read Aloud**: Hear translations spoken with text-to-speech
    - Copy-to-clipboard functionality
 
 2. **Mediator (Beta)**
@@ -74,9 +76,12 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 1. Click on the **Translator** card from the home screen
 2. Choose between TES (Truth Empowered Speaking) or TEL (Truth Empowered Listening)
 3. For TES: Enter what you want to say (reactive language)
+   - **OR** click the 🎤 microphone button to speak your message
 4. For TEL: Enter what your partner said
+   - **OR** click the 🎤 microphone button to record them
 5. Click **Translate** to get the conscious communication version
-6. Copy individual sections or the entire translation
+6. Click 🔊 speaker icons to hear each translation section spoken aloud
+7. Copy individual sections or the entire translation
 
 ### Mediator
 1. Click on the **Mediator** card from the home screen
