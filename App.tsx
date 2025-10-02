@@ -43,7 +43,10 @@ export default function App() {
     <div className="min-h-screen bg-gradient-to-br from-ter-blue/20 to-ter-lavender/20">
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Truth Empowered Relationships</h1>
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <img src="/icon-192.png" alt="TER Logo" className="w-16 h-16 rounded-2xl shadow-lg" />
+            <h1 className="text-4xl font-bold text-gray-900">Truth Empowered Relationships</h1>
+          </div>
           <p className="text-gray-600">Transform reactive patterns into conscious connection</p>
         </header>
 

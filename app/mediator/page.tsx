@@ -146,7 +146,10 @@ export default function MediatorPage() {
               <ArrowLeft size={20} className="mr-2" />
               Back
             </Link>
-            <h1 className="text-xl font-semibold text-white">Mediator (Beta)</h1>
+            <div className="flex items-center gap-2">
+              <img src="/icon-192.png" alt="TER" className="w-8 h-8 rounded-lg opacity-90" />
+              <h1 className="text-xl font-semibold text-white">Mediator (Beta)</h1>
+            </div>
             <div className="w-20"></div>
           </div>
         </div>
