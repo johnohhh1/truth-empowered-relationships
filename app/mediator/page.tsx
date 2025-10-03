@@ -92,31 +92,55 @@ export default function MediatorPage() {
 
     setIsProcessing(true)
     try {
-      // In a real app, this would upload the audio and get analysis
-      // For demo, we'll simulate with a timeout
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      // Convert blob to base64 for API
+      const reader = new FileReader()
+      reader.readAsDataURL(audioBlob)
 
-      // Mock analysis result
+      await new Promise((resolve) => {
+        reader.onloadend = resolve
+      })
+
+      const base64Audio = reader.result
+
+      const response = await fetch('/api/mediator', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          audioBlob: base64Audio,
+          speaker: speaker,
+          duration: recordingTime
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Analysis failed')
+      }
+
+      const data = await response.json()
+      setAnalysis(data)
+    } catch (error) {
+      console.error('Analysis error:', error)
+      alert('Couldn\'t analyze audio. Using demo mode.')
+
+      // Fallback to mock data
       setAnalysis({
-        transcript: "When you walked out, my chest tightened and I told myself I don't matter. I keep replaying last week and thought, 'Here we go again.'",
+        transcript: "Demo mode - Real transcription requires OpenAI Whisper API",
         telSummary: {
-          outer: "I felt dismissed when plans changed.",
-          undercurrents: "fear of not mattering / being deprioritized.",
-          whatMatters: "needs reliability and reassurance of being chosen."
+          outer: "Recorded audio segment",
+          undercurrents: "Unable to analyze without transcription",
+          whatMatters: "Connection and understanding"
         },
         depthQuestions: [
-          "Would you share what felt most tender in that moment?",
-          "Is there a way I could offer reassurance that would really land?",
-          "What meaning did you give me leaving the room just then?"
+          "What was most important in this moment?",
+          "How did you experience this?",
+          "What would help?"
         ],
         suggestedGame: {
           name: "Internal Weather Report",
-          duration: "2 min each",
-          description: "Share your emotional state using weather metaphors"
+          duration: "2-3 min",
+          description: "Share emotional state"
         }
       })
-    } catch (error) {
-      console.error('Analysis error:', error)
     } finally {
       setIsProcessing(false)
     }
