@@ -70,38 +70,42 @@ export async function translateWithAssistant(mode: 'TES' | 'TEL', input: string)
 
 INPUT: "${input}"
 
-Return ONLY valid JSON with this exact structure:
+Use your knowledge of the TER book to create a detailed, natural translation. Each field should be a complete, conversational sentence or two - not just short phrases.
+
+Return ONLY valid JSON with this structure:
 {
-  "noticing": "I notice [body sensation and emotion]",
-  "outer": "[Observable fact without interpretation]",
-  "under": "I'm afraid [deepest fear]",
-  "why": "[Core need/value] is how I [feel valued/safe/loved]",
-  "ask": "Can [specific doable request]?",
+  "noticing": "What body sensations and emotions am I experiencing? Be specific and detailed, like 'I notice a tightness spreading across my chest, my jaw is clenched, and I'm feeling a mix of frustration and hurt'",
+  "outer": "What are the observable facts without interpretation? Be concrete and specific about what happened.",
+  "under": "What's the deepest fear beneath this? Express it fully, like 'I'm afraid that my needs don't matter to you' or 'I'm scared that I'm not a priority in your life'",
+  "why": "What core need or value is at stake? Explain it naturally, like 'Being considered and included in decisions is how I feel valued and connected in our partnership'",
+  "ask": "What's a specific, doable request? Make it clear and actionable.",
   "checks": {
     "nonMeanness": true,
     "pillarsAligned": true,
     "instructionsFollowed": [1, 5, 8]
   },
   "curiousQuestions": [
-    "[Question to understand their perspective]",
-    "[Question to find mutual solution]"
+    "A question to understand their perspective",
+    "A question to find mutual solution"
   ]
 }`
     : `Analyze what this person is expressing using Truth Empowered Listening (TEL):
 
 INPUT: "${input}"
 
-Return ONLY valid JSON with this exact structure:
+Use your TER book knowledge to provide detailed, empathetic analysis. Be thorough and natural - this is about deeply understanding someone, not filling in a template.
+
+Return ONLY valid JSON with this structure:
 {
-  "outer": "[Key facts from what they said]",
-  "undercurrents": "[Possible feelings beneath the words]",
-  "whatMatters": "[Core values/needs: connection, respect, safety, etc.]",
+  "outer": "What are the key facts of what they said? Summarize the observable events or statements they mentioned.",
+  "undercurrents": "What feelings might be beneath their words? Consider the full emotional landscape - hurt, fear, longing, anger, sadness. Be specific and empathetic.",
+  "whatMatters": "What core values or needs are at stake for them? Examples: connection, respect, safety, autonomy, being heard, feeling valued. Explain what's really important to them here.",
   "depthQuestions": [
-    "[Open-ended curious question 1]",
-    "[Open-ended curious question 2]",
-    "[Open-ended curious question 3]"
+    "An open-ended, curious question to understand their experience deeper",
+    "A question to explore their needs or values",
+    "A question to help move toward connection or resolution"
   ],
-  "suggestedResponse": "[A natural, conversational 3-5 sentence response that: 1) acknowledges what was heard (outer), 2) shows understanding of feelings (undercurrents), 3) validates what matters to them, 4) includes at least one curious question. Sound empathetic and natural, not robotic.]",
+  "suggestedResponse": "A natural, conversational 3-5 sentence response that: 1) acknowledges what was heard (outer), 2) shows understanding of feelings (undercurrents), 3) validates what matters to them, 4) includes at least one curious question. Sound empathetic and genuinely caring, not formulaic or robotic.",
   "responseDisclaimer": "Suggested response—adjust to sound like you"
 }`
 
