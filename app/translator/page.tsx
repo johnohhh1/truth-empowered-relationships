@@ -38,6 +38,7 @@ export default function TranslatorPage() {
   const [loading, setLoading] = useState(false)
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [showChecks, setShowChecks] = useState(false)
+  const [autoSpeak, setAutoSpeak] = useState(false)
 
   // Speech features
   const {
@@ -85,14 +86,21 @@ export default function TranslatorPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode, input })
       })
-      
+
       const data = await response.json()
       setTranslation(data)
+
+      // Auto-speak if enabled
+      if (autoSpeak && data) {
+        setTimeout(() => {
+          speakTranslation(data)
+        }, 500)
+      }
     } catch (error) {
       console.error('Translation error:', error)
       // Set a mock translation for demo purposes
       if (mode === 'TES') {
-        setTranslation({
+        const mockData = {
           noticing: "I notice my chest feels tight and my jaw is clenched",
           outer: "When you said you'd be home by 6 and arrived at 8 without calling",
           under: "I'm afraid I don't matter enough for you to keep me informed",
@@ -107,9 +115,13 @@ export default function TranslatorPage() {
             "What made it hard to call when plans changed?",
             "How can we make communication easier when things come up?"
           ]
-        })
+        }
+        setTranslation(mockData)
+        if (autoSpeak) {
+          setTimeout(() => speakTranslation(mockData), 500)
+        }
       } else {
-        setTranslation({
+        const mockData = {
           outer: "Partner arrived 2 hours later than mentioned",
           undercurrents: "Feeling unimportant, worried, possibly abandoned",
           whatMatters: "Being kept in the loop, feeling prioritized, trust",
@@ -118,11 +130,29 @@ export default function TranslatorPage() {
             "What would help you communicate changes more easily?",
             "How did you imagine I was feeling while waiting?"
           ]
-        })
+        }
+        setTranslation(mockData)
+        if (autoSpeak) {
+          setTimeout(() => speakTranslation(mockData), 500)
+        }
       }
     } finally {
       setLoading(false)
     }
+  }
+
+  const speakTranslation = (trans: TESTranslation | TELTranslation) => {
+    if (isSpeaking) {
+      stopSpeaking()
+    }
+
+    let textToSpeak = ''
+    if (isTES(trans)) {
+      textToSpeak = `Noticing: ${trans.noticing}. Words: ${trans.outer}. Under: ${trans.under}. Why: ${trans.why}. Ask: ${trans.ask}`
+    } else {
+      textToSpeak = `Words: ${trans.outer}. Undercurrents: ${trans.undercurrents}. What Matters: ${trans.whatMatters}. Depth Questions: ${trans.depthQuestions.join('. ')}`
+    }
+    speak(textToSpeak)
   }
 
   const copyToClipboard = (text: string, field: string) => {
@@ -149,7 +179,18 @@ export default function TranslatorPage() {
               <img src="/icon-192.png" alt="TER" className="w-8 h-8 rounded-lg opacity-90" />
               <h1 className="text-xl font-semibold text-white">Translation</h1>
             </div>
-            <div className="w-20"></div>
+            <button
+              onClick={() => setAutoSpeak(!autoSpeak)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                autoSpeak
+                  ? 'bg-white text-ter-gold'
+                  : 'bg-white/20 text-white hover:bg-white/30'
+              }`}
+              title={autoSpeak ? 'Audio On' : 'Audio Off'}
+            >
+              <Volume2 size={20} />
+              <span className="text-sm font-medium">{autoSpeak ? 'On' : 'Off'}</span>
+            </button>
           </div>
         </div>
         <div className="container mx-auto px-4 pb-4">
@@ -281,80 +322,35 @@ export default function TranslatorPage() {
                 // TES Results
                 <div className="space-y-4">
                   <div className="border-l-4 border-ter-blue pl-4 bg-ter-blue/5 p-3 rounded-r-lg">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-sm text-gray-600">Noticing (Inner)</div>
-                      <button
-                        onClick={() => speakText(translation.noticing)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                        title="Read aloud"
-                      >
-                        <Volume2 size={16} className={isSpeaking ? 'text-ter-blue animate-pulse' : 'text-gray-500'} />
-                      </button>
-                    </div>
+                    <div className="text-sm text-gray-600 mb-1">Noticing (Inner)</div>
                     <div className="text-gray-900">
                       <span className="bg-ter-blue/20 px-1.5 py-0.5 rounded">{translation.noticing}</span>
                     </div>
                   </div>
 
                   <div className="border-l-4 border-ter-gold pl-4 bg-ter-gold/5 p-3 rounded-r-lg">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-sm text-gray-600">Words (Outer)</div>
-                      <button
-                        onClick={() => speakText(translation.outer)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                        title="Read aloud"
-                      >
-                        <Volume2 size={16} className={isSpeaking ? 'text-ter-gold animate-pulse' : 'text-gray-500'} />
-                      </button>
-                    </div>
+                    <div className="text-sm text-gray-600 mb-1">Words (Outer)</div>
                     <div className="text-gray-900">
                       <span className="bg-ter-gold/20 px-1.5 py-0.5 rounded">{translation.outer}</span>
                     </div>
                   </div>
 
                   <div className="border-l-4 border-ter-coral pl-4 bg-ter-coral/5 p-3 rounded-r-lg">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-sm text-gray-600">Under (What I Fear)</div>
-                      <button
-                        onClick={() => speakText(translation.under)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                        title="Read aloud"
-                      >
-                        <Volume2 size={16} className={isSpeaking ? 'text-ter-coral animate-pulse' : 'text-gray-500'} />
-                      </button>
-                    </div>
+                    <div className="text-sm text-gray-600 mb-1">Under (What I Fear)</div>
                     <div className="text-gray-900">
                       <span className="bg-ter-coral/20 px-1.5 py-0.5 rounded">{translation.under}</span>
                     </div>
                   </div>
 
                   <div className="border-l-4 border-ter-olive pl-4 bg-ter-olive/5 p-3 rounded-r-lg">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-sm text-gray-600">Why (Need/Value)</div>
-                      <button
-                        onClick={() => speakText(translation.why)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                        title="Read aloud"
-                      >
-                        <Volume2 size={16} className={isSpeaking ? 'text-ter-olive animate-pulse' : 'text-gray-500'} />
-                      </button>
-                    </div>
+                    <div className="text-sm text-gray-600 mb-1">Why (Need/Value)</div>
                     <div className="text-gray-900">
                       <span className="bg-ter-olive/20 px-1.5 py-0.5 rounded">{translation.why}</span>
                     </div>
                   </div>
 
                   <div className="border-l-4 border-ter-lavender pl-4 bg-ter-lavender/5 p-3 rounded-r-lg">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="text-sm text-gray-600">Ask (Clear & Kind)</div>
-                      <button
-                        onClick={() => speakText(translation.ask)}
-                        className="p-1 hover:bg-gray-100 rounded"
-                        title="Read aloud"
-                      >
-                        <Volume2 size={16} className={isSpeaking ? 'text-ter-lavender animate-pulse' : 'text-gray-500'} />
-                      </button>
-                    </div>
+                    <div className="text-sm text-gray-600 mb-1">Ask (Clear & Kind)</div>
                     <div className="text-gray-900">
                       <span className="bg-ter-lavender/20 px-1.5 py-0.5 rounded">{translation.ask}</span>
                     </div>
