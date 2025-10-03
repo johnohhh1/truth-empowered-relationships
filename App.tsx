@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { BookOpen, Heart, MessageSquare, Mic, ToggleLeft, ToggleRight } from 'lucide-react'
+import { BookOpen, Heart, MessageSquare, Mic, ToggleLeft, ToggleRight, TrendingUp, Users, Calendar, Settings, PlayCircle } from 'lucide-react'
 import GameSelector from '@/src/games/GameSelector'
 import { GameLevel } from '@/src/games/BaggageClaimGame'
 import VoiceChat from '@/src/voice/VoiceChat'
@@ -41,122 +41,106 @@ export default function App() {
   }, [lastCompletedGame])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-ter-blue/20 to-ter-lavender/20">
-      <div className="container mx-auto px-4 py-8">
-        <header className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <img src="/icon-192.png" alt="TER Logo" className="w-16 h-16 rounded-2xl shadow-lg" />
-            <h1 className="text-4xl font-bold text-gray-900">Truth Empowered Relationships</h1>
-          </div>
-          <p className="text-gray-600">Transform reactive patterns into conscious connection</p>
-        </header>
-
-        <div className="max-w-4xl mx-auto mb-10 rounded-3xl bg-white/80 p-6 shadow-lg">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900">Practice Settings</h2>
-              <p className="text-sm text-gray-600">Tune the experience for where you are today.</p>
+    <div className="min-h-screen bg-[#2A2A2A]">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Today's Practice Section */}
+        <div className="bg-[#E8DCC8] rounded-3xl p-6 mb-6 shadow-lg">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Today's Practice:</h2>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-900">Complete Comprehension Assessment</span>
+              <button className="bg-[#9BB5B0] hover:bg-[#8AA5A0] text-gray-900 px-6 py-2 rounded-xl font-medium transition-colors">
+                Start
+              </button>
             </div>
-            <div className="flex flex-col gap-4 md:flex-row md:items-center">
-              <label className="flex flex-col text-left text-sm font-medium text-gray-700">
-                <span className="mb-1">Growth Edge</span>
-                <select
-                  value={level}
-                  onChange={event => setLevel(event.target.value as GameLevel)}
-                  className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-ter-pink focus:outline-none focus:ring-2 focus:ring-ter-pink/40"
-                >
-                  {levelOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <span className="mt-1 text-xs font-normal text-gray-500">{selectedLevel.description}</span>
-              </label>
-
-              <div className="flex flex-col text-sm font-medium text-gray-700">
-                <span className="mb-1">Voice Mode</span>
-                <button
-                  type="button"
-                  onClick={() => setVoiceMode(value => !value)}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
-                    voiceMode ? 'border-ter-pink bg-ter-pink text-white shadow-inner' : 'border-gray-200 bg-white text-gray-700'
-                  }`}
-                >
-                  {voiceMode ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
-                  {voiceMode ? 'On' : 'Off'}
-                </button>
-                <span className="mt-1 text-xs font-normal text-gray-500">Let Aria listen and speak back in real time.</span>
-              </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-900">Play Internal Weather Report: Day 2</span>
+              <button
+                onClick={() => {
+                  const section = document.getElementById('games-section')
+                  section?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="bg-[#9BB5B0] hover:bg-[#8AA5A0] text-gray-900 px-6 py-2 rounded-xl font-medium transition-colors"
+              >
+                Play
+              </button>
             </div>
           </div>
-          {lastCompletedGame && (
-            <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-              {lastCompletedGame} logged. Beautiful integration!
-            </div>
-          )}
         </div>
 
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          <Link href="/translator" className="block transform transition-transform hover:scale-105">
-            <div className="bg-ter-gold rounded-2xl p-8 text-white h-full">
-              <div className="flex items-center justify-between mb-4">
-                <MessageSquare size={40} />
-                <span className="text-white/80 text-sm">TES / TEL</span>
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Translator</h2>
-              <p className="text-white/90">Transform reactive language into conscious communication</p>
-              <div className="mt-6 text-sm text-white/80">
-                • Truth Empowered Speaking<br />
-                • Truth Empowered Listening
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/mediator" className="block transform transition-transform hover:scale-105">
-            <div className="bg-ter-olive rounded-2xl p-8 text-white h-full">
-              <div className="flex items-center justify-between mb-4">
-                <Mic size={40} />
-                <span className="text-white/80 text-sm">Beta</span>
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Mediator</h2>
-              <p className="text-white/90">Record & analyze conversations in real-time</p>
-              <div className="mt-6 text-sm text-white/80">
-                • 15-60 second recordings<br />
-                • Get depth questions & games
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/pillars" className="block transform transition-transform hover:scale-105">
-            <div className="bg-ter-taupe rounded-2xl p-8 text-white h-full">
-              <div className="flex items-center justify-between mb-4">
-                <BookOpen size={40} />
-                <span className="text-white/80 text-sm">Reference</span>
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Four Pillars</h2>
-              <p className="text-white/90">The foundation of Truth Empowered Relationships</p>
-              <div className="mt-6 text-sm text-white/80">
-                • Freeness • Wholesomeness<br />
-                • Non-Meanness • Fairness
-              </div>
-            </div>
-          </Link>
-
-          <a href="#games-section" className="block transform transition-transform hover:scale-105">
-            <div className="bg-ter-pink rounded-2xl p-8 text-white h-full">
-              <div className="flex items-center justify-between mb-4">
-                <Heart size={40} />
-                <span className="text-white/80 text-sm">New</span>
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Games</h2>
-              <p className="text-white/90">Playful exercises to deepen connection</p>
-              <div className="mt-6 text-sm text-white/80">
-                • Internal Weather Report<br />
-                • Pause • And What Else?
-              </div>
-            </div>
+        {/* Main Grid */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {/* Practice - Games */}
+          <a
+            href="#games-section"
+            className="bg-[#A7CCD9] rounded-3xl p-8 flex flex-col items-center justify-center min-h-[180px] hover:opacity-90 transition-opacity"
+          >
+            <Heart size={64} className="text-gray-900 mb-3" />
+            <h3 className="text-2xl font-bold text-gray-900">Practice</h3>
           </a>
+
+          {/* Progress */}
+          <button
+            onClick={() => alert('Progress tracking coming soon! This will show your completion stats across all sections and games.')}
+            className="bg-[#8D725D] rounded-3xl p-8 flex flex-col items-center justify-center min-h-[180px] hover:opacity-90 transition-opacity"
+          >
+            <TrendingUp size={64} className="text-white mb-3" />
+            <h3 className="text-2xl font-bold text-white">Progress</h3>
+          </button>
+
+          {/* Translation */}
+          <Link
+            href="/translator"
+            className="bg-[#F5C95D] rounded-3xl p-8 flex flex-col items-center justify-center min-h-[180px] hover:opacity-90 transition-opacity"
+          >
+            <MessageSquare size={64} className="text-gray-900 mb-3" />
+            <h3 className="text-2xl font-bold text-gray-900">Translation</h3>
+          </Link>
+
+          {/* Mediator */}
+          <Link
+            href="/mediator"
+            className="bg-[#B8C77C] rounded-3xl p-8 flex flex-col items-center justify-center min-h-[180px] hover:opacity-90 transition-opacity"
+          >
+            <Users size={64} className="text-gray-900 mb-3" />
+            <h3 className="text-2xl font-bold text-gray-900">Mediator</h3>
+          </Link>
+
+          {/* Reference */}
+          <Link
+            href="/pillars"
+            className="bg-[#C5B9D6] rounded-3xl p-8 flex flex-col items-center justify-center min-h-[180px] hover:opacity-90 transition-opacity"
+          >
+            <BookOpen size={64} className="text-gray-900 mb-3" />
+            <h3 className="text-2xl font-bold text-gray-900">Reference</h3>
+          </Link>
+
+          {/* Live Events */}
+          <button
+            onClick={() => alert('Live Events coming soon! Marshall and Heather will host live Q&A sessions and workshops here.')}
+            className="bg-[#E07A5F] rounded-3xl p-8 flex flex-col items-center justify-center min-h-[180px] hover:opacity-90 transition-opacity"
+          >
+            <PlayCircle size={64} className="text-gray-900 mb-3" />
+            <h3 className="text-2xl font-bold text-gray-900">Live Events</h3>
+          </button>
+
+          {/* Book a Session */}
+          <button
+            onClick={() => alert('Session Booking coming soon! Schedule 1-on-1 time with certified TER coaches.')}
+            className="bg-[#F4B8C1] rounded-3xl p-8 flex flex-col items-center justify-center min-h-[180px] hover:opacity-90 transition-opacity"
+          >
+            <Calendar size={64} className="text-gray-900 mb-3" />
+            <h3 className="text-2xl font-bold text-gray-900">Book a Session</h3>
+          </button>
+
+          {/* Settings */}
+          <button
+            onClick={() => alert('Settings coming soon! Manage notifications, couple pairing, privacy preferences, and more.')}
+            className="bg-[#B8B8B8] rounded-3xl p-8 flex flex-col items-center justify-center min-h-[180px] hover:opacity-90 transition-opacity"
+          >
+            <Settings size={64} className="text-gray-900 mb-3" />
+            <h3 className="text-2xl font-bold text-gray-900">Settings</h3>
+          </button>
         </div>
 
         <section id="games-section" className="max-w-4xl mx-auto mb-16">
