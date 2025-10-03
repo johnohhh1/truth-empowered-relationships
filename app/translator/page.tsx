@@ -27,6 +27,8 @@ interface TELTranslation {
   undercurrents: string
   whatMatters: string
   depthQuestions: string[]
+  suggestedResponse?: string
+  responseDisclaimer?: string
 }
 
 export default function TranslatorPage() {
@@ -278,7 +280,7 @@ export default function TranslatorPage() {
               {isTES(translation) ? (
                 // TES Results
                 <div className="space-y-4">
-                  <div className="border-l-4 border-ter-blue pl-4">
+                  <div className="border-l-4 border-ter-blue pl-4 bg-ter-blue/5 p-3 rounded-r-lg">
                     <div className="flex items-center justify-between mb-1">
                       <div className="text-sm text-gray-600">Noticing (Inner)</div>
                       <button
@@ -289,10 +291,12 @@ export default function TranslatorPage() {
                         <Volume2 size={16} className={isSpeaking ? 'text-ter-blue animate-pulse' : 'text-gray-500'} />
                       </button>
                     </div>
-                    <div className="text-gray-900">{translation.noticing}</div>
+                    <div className="text-gray-900">
+                      <span className="bg-ter-blue/20 px-1.5 py-0.5 rounded">{translation.noticing}</span>
+                    </div>
                   </div>
 
-                  <div className="border-l-4 border-ter-gold pl-4">
+                  <div className="border-l-4 border-ter-gold pl-4 bg-ter-gold/5 p-3 rounded-r-lg">
                     <div className="flex items-center justify-between mb-1">
                       <div className="text-sm text-gray-600">Words (Outer)</div>
                       <button
@@ -303,10 +307,12 @@ export default function TranslatorPage() {
                         <Volume2 size={16} className={isSpeaking ? 'text-ter-gold animate-pulse' : 'text-gray-500'} />
                       </button>
                     </div>
-                    <div className="text-gray-900">{translation.outer}</div>
+                    <div className="text-gray-900">
+                      <span className="bg-ter-gold/20 px-1.5 py-0.5 rounded">{translation.outer}</span>
+                    </div>
                   </div>
 
-                  <div className="border-l-4 border-ter-coral pl-4">
+                  <div className="border-l-4 border-ter-coral pl-4 bg-ter-coral/5 p-3 rounded-r-lg">
                     <div className="flex items-center justify-between mb-1">
                       <div className="text-sm text-gray-600">Under (What I Fear)</div>
                       <button
@@ -317,10 +323,12 @@ export default function TranslatorPage() {
                         <Volume2 size={16} className={isSpeaking ? 'text-ter-coral animate-pulse' : 'text-gray-500'} />
                       </button>
                     </div>
-                    <div className="text-gray-900">{translation.under}</div>
+                    <div className="text-gray-900">
+                      <span className="bg-ter-coral/20 px-1.5 py-0.5 rounded">{translation.under}</span>
+                    </div>
                   </div>
 
-                  <div className="border-l-4 border-ter-olive pl-4">
+                  <div className="border-l-4 border-ter-olive pl-4 bg-ter-olive/5 p-3 rounded-r-lg">
                     <div className="flex items-center justify-between mb-1">
                       <div className="text-sm text-gray-600">Why (Need/Value)</div>
                       <button
@@ -331,10 +339,12 @@ export default function TranslatorPage() {
                         <Volume2 size={16} className={isSpeaking ? 'text-ter-olive animate-pulse' : 'text-gray-500'} />
                       </button>
                     </div>
-                    <div className="text-gray-900">{translation.why}</div>
+                    <div className="text-gray-900">
+                      <span className="bg-ter-olive/20 px-1.5 py-0.5 rounded">{translation.why}</span>
+                    </div>
                   </div>
 
-                  <div className="border-l-4 border-ter-lavender pl-4">
+                  <div className="border-l-4 border-ter-lavender pl-4 bg-ter-lavender/5 p-3 rounded-r-lg">
                     <div className="flex items-center justify-between mb-1">
                       <div className="text-sm text-gray-600">Ask (Clear & Kind)</div>
                       <button
@@ -345,7 +355,9 @@ export default function TranslatorPage() {
                         <Volume2 size={16} className={isSpeaking ? 'text-ter-lavender animate-pulse' : 'text-gray-500'} />
                       </button>
                     </div>
-                    <div className="text-gray-900">{translation.ask}</div>
+                    <div className="text-gray-900">
+                      <span className="bg-ter-lavender/20 px-1.5 py-0.5 rounded">{translation.ask}</span>
+                    </div>
                   </div>
 
                   <div className="flex gap-3 mt-6">
@@ -396,31 +408,47 @@ export default function TranslatorPage() {
               ) : (
                 // TEL Results
                 <div className="space-y-4">
-                  <div className="border-l-4 border-ter-gold pl-4">
+                  <div className="border-l-4 border-ter-gold pl-4 bg-ter-gold/5 p-3 rounded-r-lg">
                     <div className="text-sm text-gray-600 mb-1">Words (Outer)</div>
-                    <div className="text-gray-900">{(translation as TELTranslation).outer}</div>
+                    <div className="text-gray-900">
+                      <span className="bg-ter-gold/20 px-1.5 py-0.5 rounded">{(translation as TELTranslation).outer}</span>
+                    </div>
                   </div>
 
-                  <div className="border-l-4 border-ter-blue pl-4">
+                  <div className="border-l-4 border-ter-blue pl-4 bg-ter-blue/5 p-3 rounded-r-lg">
                     <div className="text-sm text-gray-600 mb-1">Undercurrents (Inner)</div>
-                    <div className="text-gray-900">{(translation as TELTranslation).undercurrents}</div>
+                    <div className="text-gray-900">
+                      <span className="bg-ter-blue/20 px-1.5 py-0.5 rounded">{(translation as TELTranslation).undercurrents}</span>
+                    </div>
                   </div>
 
-                  <div className="border-l-4 border-ter-olive pl-4">
+                  <div className="border-l-4 border-ter-olive pl-4 bg-ter-olive/5 p-3 rounded-r-lg">
                     <div className="text-sm text-gray-600 mb-1">What Matters (Values)</div>
-                    <div className="text-gray-900">{(translation as TELTranslation).whatMatters}</div>
+                    <div className="text-gray-900">
+                      <span className="bg-ter-olive/20 px-1.5 py-0.5 rounded">{(translation as TELTranslation).whatMatters}</span>
+                    </div>
                   </div>
 
-                  <div className="border-l-4 border-ter-lavender pl-4">
+                  <div className="border-l-4 border-ter-lavender pl-4 bg-ter-lavender/5 p-3 rounded-r-lg">
                     <div className="text-sm text-gray-600 mb-1">Depth Questions</div>
                     <ul className="space-y-2">
                       {(translation as TELTranslation).depthQuestions.map((q, i) => (
                         <li key={i} className="text-gray-900">
-                          {i + 1}. {q}
+                          <span className="bg-ter-lavender/20 px-1.5 py-0.5 rounded">{i + 1}. {q}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
+
+                  {(translation as TELTranslation).suggestedResponse && (
+                    <div className="border-l-4 border-ter-pink pl-4 bg-ter-pink/10 p-4 rounded-r-lg">
+                      <div className="text-sm text-gray-600 mb-2">Suggested Response</div>
+                      <div className="text-gray-900 mb-2">{(translation as TELTranslation).suggestedResponse}</div>
+                      {(translation as TELTranslation).responseDisclaimer && (
+                        <div className="text-xs text-gray-500 italic">{(translation as TELTranslation).responseDisclaimer}</div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="flex gap-3 mt-6">
                     <button 

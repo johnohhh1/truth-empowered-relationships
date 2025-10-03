@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Mic, Square, Play, Loader2, ChevronRight, Clock } from 'lucide-react'
+import { ArrowLeft, Mic, Square, Play, Loader2, ChevronRight, Clock, HelpCircle } from 'lucide-react'
 import Footer from '@/src/components/Footer'
+import MediatorTutorial from '@/src/components/MediatorTutorial'
 
 interface TELSummary {
   outer: string
@@ -31,33 +32,11 @@ export default function MediatorPage() {
   const [speaker, setSpeaker] = useState<'you' | 'partner'>('you')
   const [recordingTime, setRecordingTime] = useState(0)
   const [showConsent, setShowConsent] = useState(true)
+  const [showTutorial, setShowTutorial] = useState(false)
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const timerRef = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    if (isRecording) {
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => {
-          if (prev >= 59) {
-            stopRecording()
-            return 60
-          }
-          return prev + 1
-        })
-      }, 1000)
-    } else {
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
-      }
-    }
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current)
-      }
-    }
-  }, [isRecording])
 
   const startRecording = async () => {
     try {
@@ -85,7 +64,7 @@ export default function MediatorPage() {
       setAnalysis(null)
     } catch (error) {
       console.error('Error accessing microphone:', error)
-      alert('Please allow microphone access to use the Mediator')
+      alert('Couldn\'t record audio. Check microphone permissions in Settings.')
     }
   }
 
@@ -93,6 +72,20 @@ export default function MediatorPage() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
+    }
+  }
+
+  const toggleRecording = async () => {
+    if (isRecording) {
+      // Stop recording and immediately analyze
+      stopRecording()
+      // Wait a moment for the blob to be created
+      setTimeout(() => {
+        handleAnalyze()
+      }, 100)
+    } else {
+      // Start recording
+      await startRecording()
     }
   }
 
@@ -104,7 +97,7 @@ export default function MediatorPage() {
       // In a real app, this would upload the audio and get analysis
       // For demo, we'll simulate with a timeout
       await new Promise(resolve => setTimeout(resolve, 3000))
-      
+
       // Mock analysis result
       setAnalysis({
         transcript: "When you walked out, my chest tightened and I told myself I don't matter. I keep replaying last week and thought, 'Here we go again.'",
@@ -137,6 +130,32 @@ export default function MediatorPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
+  // Recording timer
+  useEffect(() => {
+    if (isRecording) {
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 59) {
+            // Auto-stop and analyze at 60 seconds
+            setTimeout(() => toggleRecording(), 50)
+            return 60
+          }
+          return prev + 1
+        })
+      }, 1000)
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+  }, [isRecording])
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -151,12 +170,18 @@ export default function MediatorPage() {
               <img src="/icon-192.png" alt="TER" className="w-8 h-8 rounded-lg opacity-90" />
               <h1 className="text-xl font-semibold text-white">Mediator (Beta)</h1>
             </div>
-            <div className="w-20"></div>
+            <button
+              onClick={() => setShowTutorial(true)}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              title="Show tutorial"
+            >
+              <HelpCircle size={20} className="text-white" />
+            </button>
           </div>
         </div>
         <div className="container mx-auto px-4 pb-4">
           <p className="text-white/90 text-sm">
-            {analysis ? `Segment analyzed • ${recordingTime}s` : 'Push to transcribe a turn (15-60s)'}
+            {analysis ? `Segment analyzed • ${recordingTime}s` : 'Tap to record a turn (15-60s)'}
           </p>
         </div>
       </header>
@@ -186,14 +211,11 @@ export default function MediatorPage() {
               {/* Recording Button */}
               <div className="flex flex-col items-center py-8">
                 <button
-                  onMouseDown={startRecording}
-                  onMouseUp={stopRecording}
-                  onTouchStart={startRecording}
-                  onTouchEnd={stopRecording}
+                  onClick={toggleRecording}
                   disabled={isProcessing}
                   className={`relative w-32 h-32 rounded-full flex items-center justify-center transition-all ${
-                    isRecording 
-                      ? 'bg-red-500 scale-110 recording-pulse' 
+                    isRecording
+                      ? 'bg-red-500 scale-110 recording-pulse'
                       : 'bg-white border-4 border-ter-olive hover:scale-105'
                   }`}
                 >
@@ -205,7 +227,7 @@ export default function MediatorPage() {
                 </button>
 
                 <p className="mt-6 text-gray-600 font-medium">
-                  {isRecording ? 'Release to stop' : 'Hold to record'} • Release to analyze
+                  {isRecording ? `Recording: ${Math.floor(recordingTime / 60)}:${(recordingTime % 60).toString().padStart(2, '0')} • Tap to stop & analyze` : 'Tap to start recording'}
                 </p>
 
                 {isRecording && (
@@ -386,6 +408,9 @@ export default function MediatorPage() {
           </div>
         </div>
       )}
+
+      {/* Tutorial Overlay */}
+      {showTutorial && <MediatorTutorial onClose={() => setShowTutorial(false)} />}
 
       <Footer />
     </div>

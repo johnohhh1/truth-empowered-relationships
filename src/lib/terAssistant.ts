@@ -100,7 +100,9 @@ Return ONLY valid JSON with this exact structure:
     "[Open-ended curious question 1]",
     "[Open-ended curious question 2]",
     "[Open-ended curious question 3]"
-  ]
+  ],
+  "suggestedResponse": "[A natural, conversational 3-5 sentence response that: 1) acknowledges what was heard (outer), 2) shows understanding of feelings (undercurrents), 3) validates what matters to them, 4) includes at least one curious question. Sound empathetic and natural, not robotic.]",
+  "responseDisclaimer": "Suggested response—adjust to sound like you"
 }`
 
   const response = await callTERAssistant({

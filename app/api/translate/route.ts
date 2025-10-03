@@ -53,7 +53,9 @@ function getMockTranslation(mode: string, input: string) {
         "What does being included in planning mean to you?",
         "How do you imagine I experience sudden plan changes?",
         "What would ideal weekend planning look like for us?"
-      ]
+      ],
+      suggestedResponse: "I hear that I made weekend plans without checking with you first, and it sounds like that left you feeling excluded and unimportant. Being considered in decisions is really important to you—it's how you feel valued as a partner. I want to understand better: what does being included in planning mean to you? How can we make sure we're both part of these decisions going forward?",
+      responseDisclaimer: "Suggested response—adjust to sound like you"
     }
   }
 }
