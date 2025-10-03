@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Loader2, Mic, PauseCircle, Volume2 } from 'lucide-react'
+import { Loader2, Mic, PauseCircle, Volume2, Send } from 'lucide-react'
 import { useSpeech } from '@/app/hooks/useSpeech'
 
 interface VoiceMessage {
@@ -20,6 +20,7 @@ export default function VoiceChat({ active, onStartGame }: VoiceChatProps) {
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [waveformLevel, setWaveformLevel] = useState(0)
+  const [draft, setDraft] = useState('')
 
   const {
     isRecording,
@@ -124,6 +125,15 @@ export default function VoiceChat({ active, onStartGame }: VoiceChatProps) {
     }
   }, [active, handleSend, isRecording, startRecording, stopRecording, transcribeAudio])
 
+  const handleSubmit = useCallback(async (event: React.FormEvent) => {
+    event.preventDefault()
+    if (!draft.trim()) {
+      return
+    }
+    await handleSend(draft)
+    setDraft('')
+  }, [draft, handleSend])
+
   const placeholderMessage = useMemo(() => {
     if (!active) {
       return 'Enable voice mode to talk with Aria.'
@@ -192,31 +202,51 @@ export default function VoiceChat({ active, onStartGame }: VoiceChatProps) {
         <div className="mb-4 rounded-lg border border-rose-200 bg-white/90 px-3 py-2 text-sm text-rose-700">{error}</div>
       )}
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-white/90">
-          <Volume2 size={16} />
-          {isSpeaking ? 'Speaking response…' : 'Responses will play aloud.'}
-        </div>
-        <div className="flex items-center gap-2 text-sm text-white/90">
-          {isRecording && (
-            <div className="flex items-center gap-1">
-              <span className="relative inline-flex h-2 w-8 overflow-hidden rounded-full bg-white/30">
-                <span
-                  className="absolute inset-y-0 left-0 bg-white transition-all duration-150"
-                  style={{ width: `${Math.max(10, waveformLevel * 100)}%` }}
-                />
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <label className="flex flex-col gap-2 text-sm text-gray-600">
+          <span className="font-medium text-white">Type to talk instead</span>
+          <textarea
+            value={draft}
+            onChange={event => setDraft(event.target.value)}
+            placeholder={active ? 'Share what is present for you or ask Aria to suggest a practice…' : 'Enable voice mode or type to chat with Aria.'}
+            className="min-h-[72px] resize-y rounded-2xl border border-gray-200 bg-white/90 px-4 py-3 text-sm text-gray-700 shadow-inner focus:border-ter-pink focus:outline-none focus:ring-2 focus:ring-ter-pink/40"
+            disabled={isProcessing}
+          />
+        </label>
+        <div className="flex flex-col-reverse items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm text-white/90">
+            <Volume2 size={16} />
+            {isSpeaking ? 'Speaking response…' : 'Responses will play aloud.'}
+          </div>
+          <div className="flex items-center gap-3 text-sm text-white/90">
+            {isRecording && (
+              <div className="flex items-center gap-1">
+                <span className="relative inline-flex h-2 w-14 overflow-hidden rounded-full bg-white/30">
+                  <span
+                    className="absolute inset-y-0 left-0 bg-white transition-all duration-150"
+                    style={{ width: `${Math.max(16, waveformLevel * 100)}%` }}
+                  />
+                </span>
+                Listening…
+              </div>
+            )}
+            {(isProcessing || transcribing) && (
+              <span className="inline-flex items-center gap-2 text-white">
+                <Loader2 size={16} className="animate-spin" />
+                Working
               </span>
-              Listening…
-            </div>
-          )}
-          {(isProcessing || transcribing) && (
-            <span className="inline-flex items-center gap-2 text-white">
-              <Loader2 size={16} className="animate-spin" />
-              Working
-            </span>
-          )}
+            )}
+            <button
+              type="submit"
+              className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-5 py-2 text-sm font-semibold text-white shadow transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:bg-gray-400"
+              disabled={isProcessing || !draft.trim()}
+            >
+              <Send size={16} />
+              Send to Aria
+            </button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   )
 }

@@ -2,9 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Mic, Square, Play, Loader2, ChevronRight, Clock, HelpCircle } from 'lucide-react'
+import { ArrowLeft, Mic, Square, Play, Loader2, ChevronRight, Clock } from 'lucide-react'
 import Footer from '@/src/components/Footer'
-import MediatorTutorial from '@/src/components/MediatorTutorial'
 
 interface TELSummary {
   outer: string
@@ -32,7 +31,6 @@ export default function MediatorPage() {
   const [speaker, setSpeaker] = useState<'you' | 'partner'>('you')
   const [recordingTime, setRecordingTime] = useState(0)
   const [showConsent, setShowConsent] = useState(true)
-  const [showTutorial, setShowTutorial] = useState(false)
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
@@ -170,13 +168,7 @@ export default function MediatorPage() {
               <img src="/icon-192.png" alt="TER" className="w-8 h-8 rounded-lg opacity-90" />
               <h1 className="text-xl font-semibold text-white">Mediator (Beta)</h1>
             </div>
-            <button
-              onClick={() => setShowTutorial(true)}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              title="Show tutorial"
-            >
-              <HelpCircle size={20} className="text-white" />
-            </button>
+            <div className="w-20"></div>
           </div>
         </div>
         <div className="container mx-auto px-4 pb-4">
@@ -408,9 +400,6 @@ export default function MediatorPage() {
           </div>
         </div>
       )}
-
-      {/* Tutorial Overlay */}
-      {showTutorial && <MediatorTutorial onClose={() => setShowTutorial(false)} />}
 
       <Footer />
     </div>
